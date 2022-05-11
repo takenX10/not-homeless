@@ -1,0 +1,19 @@
+.nav-link.active {
+    background-color: black !important;
+    color: white !important;
+    border: 2px solid gray !important;
+    border-bottom: 0px !important;
+}
+
+.nav-link {
+    color: black;
+}
+
+.upload { 
+    width: 30vw;
+    height: 30vh;
+}
+
+.carica {
+    flex-direction: column;
+}

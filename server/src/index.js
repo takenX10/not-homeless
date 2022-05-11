@@ -59,24 +59,24 @@ app.post('/api/getHouseResult', async(req,res)=>{
 });
 
 app.post('/api/getHousesFromPage', async(req, res)=>{
-    res.json({
-        "houses":["https://www.immobiliare.it/annunci/94657296/"]
-    })
-    console.log("get houses");
     /*res.json({
+        "houses":["https://www.immobiliare.it/annunci/94657296/"]
+    })*/
+    console.log("get houses");
+    res.json({
         "houses": await getHousesFromPage(req.body.pageUrl, req.body.houseQuery)
-    });*/
+    });
 });
 
 app.post('/api/getPagesFromHomePage', async(req, res)=>{
     console.log("get homes");
-    res.json({
-        "pages": ["page1", "page2"]
-    })
-    console.log(req.body.homeUrl);
     /*res.json({
+        "pages": ["page1", "page2"]
+    })*/
+    console.log(req.body.homeUrl);
+    res.json({
         pages: await getPagesFromHomePage(req.body.homeUrl, req.body.pagesQuery)
-    });*/
+    });
 });
 
 
