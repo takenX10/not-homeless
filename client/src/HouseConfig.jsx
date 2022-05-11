@@ -18,15 +18,21 @@ const immobiliareQuery = {
 export default function HouseConfig() {
     const [showHouses, setShowHouses] = useState(false);
     const [homeJson, setHomeJson] = useState([]);
+    const [blackList, setBlackList] = useState([]);
+    const immobiliareRef = useRef(null);
+    const blackListRef = useRef(null);
 
     // specify upload params and url for your files
-    const getUploadParams = ({ meta }) => { return { url: 'https://httpbin.org/post' } }
+    const getUploadParams = ({ meta }) => { return { url: 'https://httpbin.org/post' } } /* TODO */
 
     // receives array of files that are done uploading when submit button is clicked
     const handleSubmit = (files) => { console.log(files.map(f => f.meta)) }
-    var immobiliareRef = useRef(null);
     function configureJson(){
         if(immobiliareRef.current.value != ""){
+            if(blackListRef.current.value){
+                console.log(blackListRef.current.value);
+                setBlackList(blackListRef.current.value.split("\n"));
+            }
             setHomeJson(homeJson.push({
                 url: immobiliareRef.current.value,
                 query: immobiliareQuery
@@ -37,8 +43,9 @@ export default function HouseConfig() {
     }
 
     if (showHouses) {
+        console.log(blackList);
         return (
-            <HouseParser homeJson={homeJson} />
+            <HouseParser homeJson={homeJson} blockedList={blackList}/>
         );
     } else {
         return (
@@ -60,7 +67,7 @@ export default function HouseConfig() {
                                                 </Form.Group>
                                                 <Form.Group>
                                                     <Form.Label className="fs-2">Blacklist</Form.Label>
-                                                    <Form.Control as="textarea" rows={8}></Form.Control>
+                                                    <Form.Control ref={blackListRef} as="textarea" rows={8}></Form.Control>
                                                     <Form.Text className="text-muted">Una frase filtrata per riga</Form.Text>
                                                 </Form.Group>
                                             </Form>
