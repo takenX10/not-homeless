@@ -1,0 +1,16 @@
+
+.house-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.house {
+    width: 50%;
+    height: min-content;
+    text-align: start;
+    margin: 3rem;
+}
+
