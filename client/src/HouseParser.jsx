@@ -35,8 +35,8 @@ function isBlocked(house, filters) {
     if (filters) {
         for (let i = 0; i < filters.length; i++) {
             if (house.description.toLowerCase().includes(filters[i].toLowerCase())) {
-                var regexp = new RegExp(filters[i] , "i"); //  case insensitive regexp
-                house.description = parse(house.description.replace(regexp , '<b className="text-danger">$&</b>'));
+                var regexp = new RegExp(filters[i], "i"); //  case insensitive regexp
+                house.description = parse(house.description.replace(regexp, '<b className="text-danger">$&</b>'));
                 return house;
             }
         }
@@ -50,14 +50,22 @@ export default function HouseParser({ homeJson: homeJson, blockedList: blockedLi
     const [blockedHousesList, setBlockedHousesList] = useState([]);
     const [deletedHousesList, setDeletedHousesList] = useState([]);
     const [savedHousesList, setSavedHousesList] = useState([]);
+    const [housesLoaded, setHousesLoaded] = useState(false);
 
-    function addDeleted(house){
-        /*deletedHousesList.push(house);
-        housesList.splice(housesList.indexOf(house), 1);
+    function addDeleted(house) {
+        deletedHousesList.push(house);
         setDeletedHousesList([...deletedHousesList]);
-        setHousesList([...housesList]); */
+        housesList.splice(housesList.indexOf(house), 1);
+        setHousesList((housesList) => housesList.filter((val) => val != house));
     }
-    
+
+    function addSaved(house) {
+        savedHousesList.push(house);
+        setSavedHousesList([...savedHousesList]);
+        housesList.splice(housesList.indexOf(house), 1);
+        setHousesList((housesList) => housesList.filter((val) => val != house));
+    }
+
     const HouseCard = ({ house }) => {
         return (
             <div className="row d-flex justify-content-center align-items-center m-3">
@@ -67,36 +75,92 @@ export default function HouseParser({ homeJson: homeJson, blockedList: blockedLi
                     <a href={house.href}>{house.href}</a>
                 </div>
                 <div className="col-2 card-buttons-container">
-                    <Button variant='success' className="m-2" onClick={addDeleted(house)}>Si</Button>
-                    <Button variant='danger' className="m-2">no</Button>
+                    <Button variant='success' className="m-2" onClick={() => { addSaved(house) }}>Si</Button>
+                    <Button variant='danger' className="m-2" onClick={() => { addDeleted(house) }}>No</Button>
                 </div>
             </div>
         );
     }
+    function notPresent(href) {
+        var listType = [savedHousesList, blockedHousesList, deletedHousesList, housesList];
+        listType.forEach((list) => {
+            list.forEach((house) => {
+                if (house.href == href) {
+                    console.log(true);
+                    return true;
+                }
+            });
+        });
+        console.log(true);
+        return true;
+    }
 
-    useEffect(() => {
+    function startSearch(){
+        console.log("start");
         homeJson.forEach(async (homePage) => {
             getPages(homePage.url, homePage.query.homePage).then(async (pages) => {
                 setHomePagesList(homeJson.concat(pages));
                 pages.forEach(async (page) => {
                     getHouses(page, homePage.query.house).then(async (houses) => {
                         houses.forEach(async (house) => {
-                            let result = await getHouseResult(house, homePage.query.results);
-                            result.href = house;
-                            console.log(blockedList);
-                            var blocked = isBlocked(result, blockedList);
-                            if (blocked) {
-                                blockedHousesList.push(blocked);
-                                setBlockedHousesList([...blockedHousesList]);
-                            } else {
-                                housesList.push(result)
-                                setHousesList([...housesList]);
+                            if (notPresent(house.url)) {
+                                let result = await getHouseResult(house, homePage.query.results);
+                                result.href = house;
+                                console.log(blockedList);
+                                var blocked = isBlocked(result, blockedList);
+                                if (blocked) {
+                                    blockedHousesList.push(blocked);
+                                    setBlockedHousesList([...blockedHousesList]);
+                                } else {
+                                    housesList.push(result)
+                                    setHousesList([...housesList]);
+                                }
                             }
                         });
                     });
                 });
             });
         });
+    }
+    useEffect(()=>{
+        if(housesLoaded){
+            localStorage.setItem("savedHouses",JSON.stringify(savedHousesList));
+        }
+    }, [savedHousesList]);
+    useEffect(()=>{
+        if(housesLoaded){
+            localStorage.setItem("deletedHouses",JSON.stringify(deletedHousesList));
+        }
+    }, [deletedHousesList]);
+    useEffect(()=>{
+        if(housesLoaded){
+            localStorage.setItem("searchedHouses",JSON.stringify(housesList));
+        }
+    }, [housesList]);
+    useEffect(()=>{
+        if(housesLoaded){
+            localStorage.setItem("blockedHouses",JSON.stringify(blockedHousesList));
+        }
+    }, [blockedHousesList]);
+
+    useEffect(()=>{
+        if(!housesList.length && !deletedHousesList.length && !savedHousesList.length && !blockedHousesList.length ) {
+            console.log("inizio ricerca");
+            startSearch();
+        }
+    }, [housesLoaded]);
+
+    useEffect(() => {
+        console.log(localStorage.getItem("searchedHouses"));
+        var blockedHousesLocal = JSON.parse(localStorage.getItem("blockedHouses"));
+        var deletedHousesLocal = JSON.parse(localStorage.getItem("deletedHouses"));
+        var savedHousesLocal = JSON.parse(localStorage.getItem("savedHouses"));
+        var housesListLocal = JSON.parse(localStorage.getItem("searchedHouses"));
+        setBlockedHousesList(blockedHousesLocal ? blockedHousesLocal : []);
+        setDeletedHousesList(deletedHousesLocal ? deletedHousesLocal : []);
+        setSavedHousesList(savedHousesLocal ? savedHousesLocal : []);
+        setHousesList(housesListLocal ? housesListLocal : []);
+        setHousesLoaded(true);
     }, []);
 
     return (
@@ -104,10 +168,16 @@ export default function HouseParser({ homeJson: homeJson, blockedList: blockedLi
             <div className="container-fluid bg-success text-light info-navbar">
                 <div className="row p-5">
                     <div className="col-3 justify-content-center">
-                        <h3>Case trovate: <b>{housesList.length}</b></h3>
+                        <h3>Case da controllare: <b>{housesList.length}</b></h3>
                     </div>
                     <div className="col-3 justify-content-center">
                         <h3>Case bloccate dai filtri: <b>{blockedHousesList.length}</b></h3>
+                    </div>
+                    <div className="col-3 justify-content-center">
+                        <h3>Case salvate: <b>{savedHousesList.length}</b></h3>
+                    </div>
+                    <div className="col-3 justify-content-center">
+                        <h3>Case eliminate: <b>{deletedHousesList.length}</b></h3>
                     </div>
                 </div>
             </div>
@@ -139,6 +209,16 @@ export default function HouseParser({ homeJson: homeJson, blockedList: blockedLi
                                 <div className="container-fluid">
                                     {
                                         deletedHousesList.map((house) => {
+                                            console.log(house);
+                                            return (<HouseCard key={house.href} house={house} />);
+                                        })
+                                    }
+                                </div>
+                            </Tab>
+                            <Tab eventKey="Salvate" title="Salvate" className="p-5 pt-1">
+                                <div className="container-fluid">
+                                    {
+                                        savedHousesList.map((house) => {
                                             console.log(house);
                                             return (<HouseCard key={house.href} house={house} />);
                                         })
