@@ -30,36 +30,37 @@ export default function HouseConfig() {
             localStorage.removeItem("savedHouses");
             localStorage.removeItem("deletedHouses");
             localStorage.removeItem("searchedHouses");
+            localStorage.removeItem("blockedHouses");
+            localStorage.removeItem("homeJson");
             setBackup(false);
         }
     }
     useEffect(()=>{
-        setBackup(localStorage.getItem("savedHouses") || localStorage.getItem("deletedHouses") || localStorage.getItem("searchedHouses"));
+        setBackup(localStorage.getItem("savedHouses") || localStorage.getItem("deletedHouses") || localStorage.getItem("searchedHouses") || localStorage.getItem("blockedHouses") || localStorage.getItem("homeJson"));
     }, []);
     // specify upload params and url for your files
-    const getUploadParams = ({ meta }) => { return { url: 'https://httpbin.org/post' } } /* TODO */
+    const getUploadParams = ({ meta }) => { return { }} /* TODO */
 
     // receives array of files that are done uploading when submit button is clicked
-    const handleSubmit = (files) => { console.log(files.map(f => f.meta)) }
+    const handleSubmit = (files) => { /**TODO */}
     function configureJson(){
+        var auxHomeJson = [];
+        if(blackListRef.current.value){
+            setBlackList(blackListRef.current.value.split("\n"));
+        }
         if(immobiliareRef.current.value != ""){
-            if(blackListRef.current.value){
-                console.log(blackListRef.current.value);
-                setBlackList(blackListRef.current.value.split("\n"));
-            }
-            setHomeJson(homeJson.push({
+            auxHomeJson.push({
                 url: immobiliareRef.current.value,
                 query: immobiliareQuery
-            }));
+            });   
         }
-        setHomeJson([].concat.apply([],homeJson));
-        return homeJson.length > 0;
+        setHomeJson(auxHomeJson);
+        return true;
     }
     if(!(backup && !showHouses)){
         if (showHouses) {
-            console.log(blackList);
             return (
-                <HouseParser homeJson={homeJson} blockedList={blackList}/>
+                <HouseParser urlList={homeJson} blockedList={blackList}/>
             );
         } else {
             return (
@@ -100,7 +101,7 @@ export default function HouseConfig() {
                                             </div>
                                         </div>
                                     </Tab>
-                                    <Tab eventKey="Carica" title="Carica Ricerca" className="p-5 pt-1">
+                                    <Tab disabled eventKey="Carica" title="Carica Ricerca" className="p-5 pt-1">
                                         <div className="container-fluid">
                                             <div className="row">
                                                 <Form>

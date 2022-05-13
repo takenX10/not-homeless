@@ -9,7 +9,7 @@ export default function App(){
     return (
             <>
                 <div className="navbar">
-                    <h1>NO homeless</h1>
+                    <h1 className="py-4">N0t homeless</h1>
                 </div>
                 <HouseConfig />
             </>
