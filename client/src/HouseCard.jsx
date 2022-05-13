@@ -8,6 +8,7 @@ const HouseCard = ({ house, addFunction, deleteFunction }) => {
         <div className="row d-flex justify-content-center align-items-center m-3">
             <div className="col-6 border border-left-0 border-secondary border-width-2 p-4">
                 <h1 className='fs-1'>{house.title}</h1>
+                <h3>{house.price}</h3>
                 <p>{house.description}</p>
                 <a href={house.href}>{house.href}</a>
             </div>

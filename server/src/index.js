@@ -44,7 +44,8 @@ async function getHouseResults(houseUrl, houseResultQuery){
                 const dom = new JSDOM(text);
                 return {
                     title:dom.window.document.querySelector(houseResultQuery.title).textContent,
-                    description:dom.window.document.querySelector(houseResultQuery.description).textContent
+                    description:dom.window.document.querySelector(houseResultQuery.description).textContent,
+                    price: dom.window.document.querySelector(houseResultQuery.price).textContent
                 }
             })})
         );
