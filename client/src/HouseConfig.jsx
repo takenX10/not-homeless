@@ -15,13 +15,23 @@ const immobiliareQuery = {
     }
 };
 
-const casapuntoitQuery = {
-    homePage:".in-pagination__list > .in-pagination__item:not(.in-pagination__item--current)",
-    house: ".in-card__title",
+const idealistaQuery = {
+    homePage:".pagination > ul > li > a",
+    house: ".item-link",
     results: {
-        title: ".im-titleBlock__title",
-        description: ".im-description__text",
-        price: ".im-mainFeatures__title"
+        title: ".main-info__title-main",
+        description: ".adCommentsLanguage",
+        price: ".info-data-price > span"
+    }
+};
+
+const subitoQuery = {
+    homePage:".pagination_pagination-button-wrapper__czWc4 > a",
+    house: ".BigCard-module_link__kVqPE",
+    results: {
+        title: ".AdInfo_ad-info__title__7jXnY",
+        description: ".AdDescription_description__gUbvH",
+        price: ".AdInfo_ad-info__price__tGg9h"
     }
 };
 
@@ -32,6 +42,8 @@ export default function HouseConfig() {
     const [blackList, setBlackList] = useState([]);
     const [backup, setBackup] = useState(false);
     const immobiliareRef = useRef(null);
+    const idealistaRef = useRef(null);
+    const subitoRef = useRef(null);
     const blackListRef = useRef(null);
     
     function savedState(doUse){
@@ -59,11 +71,26 @@ export default function HouseConfig() {
         if(blackListRef.current.value){
             setBlackList(blackListRef.current.value.split("\n"));
         }
-        if(immobiliareRef.current.value != ""){
+        if(immobiliareRef.current.value !== ""){
             auxHomeJson.push({
+                domain: "https://www.immobiliare.it",
                 url: immobiliareRef.current.value,
                 query: immobiliareQuery
             });   
+        }
+        if(idealistaRef.current.value !== ""){
+            auxHomeJson.push({
+                domain: "https://www.idealista.it",
+                url: idealistaRef.current.value,
+                query: idealistaQuery
+            });   
+        }
+        if(subitoRef.current.value !== ""){
+            auxHomeJson.push({
+                domain: "https://www.subito.it",
+                url: subitoRef.current.value,
+                query: subitoQuery
+            })
         }
         setHomeJson(auxHomeJson);
         return true;
@@ -86,9 +113,23 @@ export default function HouseConfig() {
                                                 <Form>
                                                     <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
                                                         <Form.Label>Link Immobiliare</Form.Label>
-                                                        <Form.Control ref={immobiliareRef} type="immobiliare" placeholder="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3" />
+                                                        <Form.Control ref={immobiliareRef} type="immobiliare" placeholder="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3" defaultValue="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3"/>
                                                         <Form.Text className="text-muted">
                                                             <a className="fs-6" href="https://www.immobiliare.it/">https://www.immobiliare.it/</a>
+                                                        </Form.Text>
+                                                    </Form.Group>
+                                                    <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
+                                                        <Form.Label>Link Idealista</Form.Label>
+                                                        <Form.Control ref={idealistaRef} type="idealista" placeholder="https://www.idealista.it/affitto-case/bologna-bologna/" />
+                                                        <Form.Text className="text-muted">
+                                                            <a className="fs-6" href="https://www.idealista.it/">https://www.idealista.it/</a>
+                                                        </Form.Text>
+                                                    </Form.Group>
+                                                    <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
+                                                        <Form.Label>Link Subito</Form.Label>
+                                                        <Form.Control ref={subitoRef} type="Subito" placeholder="https://www.subito.it/annunci-emilia-romagna/affitto/appartamenti/bologna/bologna/"  defaultValue="https://www.subito.it/annunci-emilia-romagna/affitto/appartamenti/bologna/bologna/"/>
+                                                        <Form.Text className="text-muted">
+                                                            <a className="fs-6" href="https://www.subito.it/">https://www.subito.it/</a>
                                                         </Form.Text>
                                                     </Form.Group>
                                                     <Form.Group>
@@ -100,7 +141,7 @@ export default function HouseConfig() {
                                             </div>
                                         </div>
                                     </Tab>
-                                    <Tab eventKey="Manuale" title="Configurazione Manuale" className="p-5 pt-1">
+                                    <Tab eventKey="Manuale" title="Configurazione Manuale" disabled className="p-5 pt-1">
                                         <div className="container-fluid">
                                             <div className="row">
                                                 <Form>

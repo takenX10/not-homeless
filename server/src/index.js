@@ -9,6 +9,14 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 
 
 const PORT = 3030;
+const DEBUG_PRINT = true;
+
+function isFullUrl(url){
+    if(url.substring(0,4) == "http"){
+        return true;
+    }
+    return false;
+}
 
 async function getPagesFromHomePage(homeUrl, pagesQuery){
     return fetch(homeUrl).then((response)=>{return response.text().then((text)=>{
@@ -54,20 +62,29 @@ async function getHouseResults(houseUrl, houseResultQuery){
 }
 
 app.post('/api/getHouseResult', async(req,res)=>{
-    console.log("get house info");
-    var resp = await getHouseResults(req.body.houseUrl, req.body.houseResultQuery);
+    var url = isFullUrl(req.body.houseUrl) ? req.body.houseUrl : req.body.domain + req.body.houseUrl;
+    if(DEBUG_PRINT){
+        console.log(`get house info from ${url}`);
+    }
+    var resp = await getHouseResults(url, req.body.houseResultQuery);
     res.json(resp[0]);
 });
 
 app.post('/api/getHousesFromPage', async(req, res)=>{
-    console.log("get houses list");
+    var url = isFullUrl(req.body.pageUrl) ? req.body.pageUrl : req.body.domain + req.body.pageUrl;
+    if(DEBUG_PRINT){
+        console.log(`get houses list from ${url}`);
+    }
     res.json({
-        "houses": await getHousesFromPage(req.body.pageUrl, req.body.houseQuery)
+        "houses": await getHousesFromPage(url, req.body.houseQuery)
     });
 });
 
 app.post('/api/getPagesFromHomePage', async(req, res)=>{
-    console.log("get pages");
+    var url = isFullUrl(req.body.homeUrl) ? req.body.homeUrl : req.body.domain + req.body.homeUrl;
+    if(DEBUG_PRINT){
+        console.log(`get pages from ${url}`);
+    }
     res.json({
         pages: await getPagesFromHomePage(req.body.homeUrl, req.body.pagesQuery)
     });

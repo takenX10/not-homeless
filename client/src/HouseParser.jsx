@@ -9,75 +9,32 @@ import SecondNavbar from './SecondNavbar';
 import HouseCard from './HouseCard';
 
 export default function HouseParser({ urlList, blockedList }) {
-    const [housesList, setHousesList] = useState([]);
-    const [blockedHousesList, setBlockedHousesList] = useState([]);
-    const [deletedHousesList, setDeletedHousesList] = useState([]);
-    const [savedHousesList, setSavedHousesList] = useState([]);
+    /* 
+        0 = lista case cercate
+        1 = lista case bloccate dai filtri
+        2 = lista case eliminate
+        3 = lista case salvate
+    */
+    const [housesArray, setHousesArray] = useState([[],[],[],[]]);
     const [housesLoaded, setHousesLoaded] = useState(false);
     const [config, setConfig] = useState(urlList);
 
-    const housesArray = [housesList, blockedHousesList, deletedHousesList, savedHousesList];
-    const setArray = [setHousesList, setBlockedHousesList, setDeletedHousesList, setSavedHousesList];
-
     function addFunction(house) {
-        savedHousesList.push(house);
-        setSavedHousesList([...savedHousesList]);
-        housesList.splice(housesList.indexOf(house), 1);
-        setHousesList((housesList) => housesList.filter((val) => val != house));
+        setHousesArray((current) => [[...current[0]], [...current[1]], [...current[2]], [...current[3], house]]);
+        // Fix this!!!!!!
     }
-
+    
     function deleteFunction(house) {
-        deletedHousesList.push(house);
-        setDeletedHousesList([...deletedHousesList]);
-        housesList.splice(housesList.indexOf(house), 1);
-        setHousesList((housesList) => housesList.filter((val) => val != house));
+        setHousesArray((current) => [[...current[0]], [...current[1]], [...current[2], house], [...current[3]]]);
     }
-    useEffect(() => {
-        if (housesLoaded) {
-            localStorage.setItem("searchedHouses", JSON.stringify(housesList));
-        }else{
-            var savedHousesLocal = JSON.parse(localStorage.getItem("savedHouses"));
-            setSavedHousesList(savedHousesLocal ? savedHousesLocal : []);
-        }
-    }, [housesList]);
-    useEffect(() => {
-        if (housesLoaded) {
-            localStorage.setItem("savedHouses", JSON.stringify(savedHousesList));
-        }else{
-            var deletedHousesLocal = JSON.parse(localStorage.getItem("deletedHouses"));
-            setDeletedHousesList(deletedHousesLocal ? deletedHousesLocal : []);
-        }
-    }, [savedHousesList]);
-    useEffect(() => {
-        if (housesLoaded) {
-            localStorage.setItem("deletedHouses", JSON.stringify(deletedHousesList));
-        }else{
-            var blockedHousesLocal = JSON.parse(localStorage.getItem("blockedHouses"));
-            setBlockedHousesList(blockedHousesLocal ? blockedHousesLocal : []);
-        }
-    }, [deletedHousesList]);
-    useEffect(() => {
-        if (housesLoaded) {
-            localStorage.setItem("blockedHouses", JSON.stringify(blockedHousesList));
-        }else{
-            setHousesLoaded(true);
-        }
-    }, [blockedHousesList]);
 
-    /* Start the search after all the localStorage houses loaded */
-    useEffect(() => {
+    function housesArraySize(){
         var length = 0;
         housesArray.forEach((list) => {
             length += list.length;
         });
-        if (!length) {
-            startSearch(config, blockedList, housesArray, setArray);
-        }
-    }, [housesLoaded]);
-    useEffect(()=>{
-        var housesListLocal = JSON.parse(localStorage.getItem("searchedHouses"));
-        setHousesList(housesListLocal ? housesListLocal : []); 
-    }, [config])
+        return length;
+    }
 
     /* Load all the houses from local storage and the config json */
     useEffect(() => {
@@ -89,24 +46,51 @@ export default function HouseParser({ urlList, blockedList }) {
                 setConfig(parsed);
             }
         } else {
-            setConfig(urlList);
             localStorage.setItem("urlList", JSON.stringify(urlList));
+            setConfig(urlList);
         }
-          
     }, []);
+
+    useEffect(()=>{
+        var housesListLocal = JSON.parse(localStorage.getItem("searchedHouses"));
+        var blockedHousesLocal = JSON.parse(localStorage.getItem("blockedHouses"));
+        var deletedHousesLocal = JSON.parse(localStorage.getItem("deletedHouses"));
+        var savedHousesLocal = JSON.parse(localStorage.getItem("savedHouses"));
+        setHousesArray([housesListLocal ? housesListLocal : [],  blockedHousesLocal? blockedHousesLocal : [], deletedHousesLocal ? deletedHousesLocal : [], savedHousesLocal ? savedHousesLocal : []]);
+    }, [config])
+
+    useEffect(() => {
+        if(housesLoaded){
+            localStorage.setItem("searchedHouses", JSON.stringify(housesArray[0]));
+            localStorage.setItem("blockedHouses", JSON.stringify(housesArray[1]));
+            localStorage.setItem("deletedHouses", JSON.stringify(housesArray[2]));
+            localStorage.setItem("savedHouses", JSON.stringify(housesArray[3]));
+        }else{
+            setHousesLoaded(true);
+        }
+    }, [housesArray]);
+    
+    /* Start the search after all the localStorage houses loaded */
+    useEffect(() => {
+        
+        if (!housesArraySize()) {
+            startSearch(config, blockedList, housesArray, setHousesArray);
+        }
+    }, [housesLoaded]);
+    
 
     return (
         <>
-            <SecondNavbar housesArray={housesArray} setArray={setArray} urlList={config} blockedList={blockedList} startSearch={startSearch}/>
+            <SecondNavbar housesArray={housesArray} setHousesArray={setHousesArray} urlList={config} blockedList={blockedList} startSearch={startSearch}/>
             <div className="container-fluid p-5 mx-5">
                 {
-                    (housesList.length == 0 && blockedHousesList == 0 && savedHousesList == 0 && deletedHousesList == 0) ?
+                    ((housesArray[0].length + housesArray[1].length + housesArray[2].length + housesArray[3].length) == 0 ) ?
                         <h1 className='m-5 fs-2 text-center'>Loading ...</h1> :
                         <Tabs>
                             <Tab eventKey="Ricerca" title="Ricerca" className="p-5 pt-1">
                                 <div className="container-fluid">
                                     {
-                                        housesList.map((house) => {
+                                        housesArray[0].map((house) => {
                                             return (<HouseCard key={house.href} house={house} addFunction={addFunction} deleteFunction={deleteFunction} />);
                                         })
                                     }
@@ -115,7 +99,7 @@ export default function HouseParser({ urlList, blockedList }) {
                             <Tab eventKey="Bloccate" title="Bloccate" className="p-5 pt-1">
                                 <div className="container-fluid">
                                     {
-                                        blockedHousesList.map((house) => {
+                                        housesArray[1].map((house) => {
                                             return (<HouseCard key={house.href} house={house} addFunction={addFunction} deleteFunction={deleteFunction} />);
                                         })
                                     }
@@ -124,7 +108,7 @@ export default function HouseParser({ urlList, blockedList }) {
                             <Tab eventKey="Rimosse" title="Rimosse" className="p-5 pt-1">
                                 <div className="container-fluid">
                                     {
-                                        deletedHousesList.map((house) => {
+                                        housesArray[2].map((house) => {
                                             return (<HouseCard key={house.href} house={house} addFunction={addFunction} deleteFunction={deleteFunction} />);
                                         })
                                     }
@@ -133,7 +117,7 @@ export default function HouseParser({ urlList, blockedList }) {
                             <Tab eventKey="Salvate" title="Salvate" className="p-5 pt-1">
                                 <div className="container-fluid">
                                     {
-                                        savedHousesList.map((house) => {
+                                        housesArray[3].map((house) => {
                                             return (<HouseCard key={house.href} house={house} addFunction={addFunction} deleteFunction={deleteFunction} />);
                                         })
                                     }
