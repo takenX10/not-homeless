@@ -7,7 +7,7 @@ import "./HouseConfig.css";
 
 const immobiliareQuery = {
     homePage:".in-pagination__list > .in-pagination__item:not(.in-pagination__item--current)",
-    house: ".in-card__title",
+    house: "a.in-card__title",
     results: {
         title: ".im-titleBlock__title",
         description: ".im-description__text",

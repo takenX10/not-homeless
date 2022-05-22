@@ -1,12 +1,10 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const jsdom = require("jsdom");
-const {JSDOM} = jsdom;
+const puppeteer = require('puppeteer');
 app.use(bodyParser.json())
 
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
+var browser = null;
 
 const PORT = 3030;
 const DEBUG_PRINT = true;
@@ -19,46 +17,44 @@ function isFullUrl(url){
 }
 
 async function getPagesFromHomePage(homeUrl, pagesQuery){
-    return fetch(homeUrl).then((response)=>{return response.text().then((text)=>{
-        const dom = new JSDOM(text);
-        return (Array.from(dom.window.document.querySelectorAll(pagesQuery), (element)=>{return element.href})).concat(homeUrl);
-    })});
+    const page = await browser.newPage();
+    await page.goto(homeUrl);
+    const nodes = await page.$$(pagesQuery);
+    let res = (Array.from(nodes, async(element)=>{element = await element.getProperty('href'); return await element.jsonValue()})).concat(homeUrl);
+    res = await Promise.all(res);
+    page.close();
+    return res;
 }
 
-async function getHousesFromPage(pagesUrl, housesQuery){
-    if(typeof(pagesUrl) !== typeof([])){
-        pagesUrl = [pagesUrl];
-    }
-    var promises = [];
-    pagesUrl.forEach((page)=>{
-        promises.push(fetch(page).then((response)=>{
-            return response.text().then((text)=>{
-                const dom = new JSDOM(text);
-                return Array.from(dom.window.document.querySelectorAll(housesQuery), (element)=>{return element.href});
-            });
-        }));
-    });
-    return await [].concat.apply([],await Promise.all(promises));
+async function getHousesFromPage(pageUrl, housesQuery){
+    const page = await browser.newPage();
+    await page.goto(pageUrl);
+    const nodes = await page.$$(housesQuery);
+    let res = (Array.from(nodes, async(element)=>{element = await element.getProperty('href'); return await element.jsonValue()}));
+    res = await Promise.all(res);
+    page.close();
+    return res;
 }
 
 async function getHouseResults(houseUrl, houseResultQuery){
-    if(typeof(houseUrl) !== typeof([])){
-        houseUrl = [houseUrl];
-    }
-    var promises = [];
-    houseUrl.forEach((house)=>{
-        promises.push(
-            fetch(house).then((response)=>{return response.text().then((text)=>{
-                const dom = new JSDOM(text);
-                return {
-                    title:dom.window.document.querySelector(houseResultQuery.title).textContent,
-                    description:dom.window.document.querySelector(houseResultQuery.description).textContent,
-                    price: dom.window.document.querySelector(houseResultQuery.price).textContent
-                }
-            })})
-        );
-    });
-    return await Promise.all(promises);
+    const page = await browser.newPage();
+    await page.goto(houseUrl);
+    var title = await page.$(houseResultQuery.title);
+    var description = await page.$(houseResultQuery.description);
+    var price = await page.$(houseResultQuery.price);
+    title = title.getProperty('innerText').then((val) => val.jsonValue());
+    price = price.getProperty('innerText').then((val) => val.jsonValue());
+    description = description.getProperty('innerText').then((val) => val.jsonValue());
+    title = await title;
+    price = await price;
+    description = await description;
+    console.log(title, description, price);
+    page.close();
+    return {
+        title:title,
+        description:description,
+        price:price
+    };
 }
 
 app.post('/api/getHouseResult', async(req,res)=>{
@@ -67,7 +63,7 @@ app.post('/api/getHouseResult', async(req,res)=>{
         console.log(`get house info from ${url}`);
     }
     var resp = await getHouseResults(url, req.body.houseResultQuery);
-    res.json(resp[0]);
+    res.json(resp);
 });
 
 app.post('/api/getHousesFromPage', async(req, res)=>{
@@ -90,5 +86,9 @@ app.post('/api/getPagesFromHomePage', async(req, res)=>{
     });
 });
 
-
+(async () => {
+    browser = await puppeteer.launch({
+        headless: true
+    });
+})();
 app.listen(PORT, () => console.log(`Server ready on port: ${PORT}`));
