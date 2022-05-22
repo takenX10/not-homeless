@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import { startSearch } from './utils';
 
 
-export default function SecondNavbar({ housesArray, setHousesArray, urlList, blockedList, startSearch }) {
+export default function SecondNavbar({ housesArray, setHousesArray, urlList, blockedList, startSearch, reconfigure }) {
     return (
         <div className="container-fluid bg-success text-light info-navbar">
             <div className="row p-5 justify-content-center">
@@ -21,6 +21,9 @@ export default function SecondNavbar({ housesArray, setHousesArray, urlList, blo
                 </div>
                 <div className="col-5 mt-5 text-center">
                     <Button onClick={() => startSearch(urlList, blockedList, housesArray, setHousesArray)}>Refresh ricerca</Button>
+                </div>
+                <div className="col-5 mt-5 text-center">
+                    <Button onClick={() => reconfigure(true)}>Riconfigura json</Button>
                 </div>
             </div>
         </div>

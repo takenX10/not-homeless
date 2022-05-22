@@ -6,7 +6,7 @@ import HouseParser from "./HouseParser";
 import "./HouseConfig.css";
 
 const immobiliareQuery = {
-    homePage:".in-pagination__list > .in-pagination__item:not(.in-pagination__item--current)",
+    homePage: ".in-pagination__list > .in-pagination__item:not(.in-pagination__item--current)",
     house: "a.in-card__title",
     results: {
         title: ".im-titleBlock__title",
@@ -16,7 +16,7 @@ const immobiliareQuery = {
 };
 
 const idealistaQuery = {
-    homePage:".pagination > ul > li > a",
+    homePage: ".pagination > ul > li > a",
     house: ".item-link",
     results: {
         title: ".main-info__title-main",
@@ -26,7 +26,7 @@ const idealistaQuery = {
 };
 
 const subitoQuery = {
-    homePage:".pagination_pagination-button-wrapper__czWc4 > a",
+    homePage: ".pagination_pagination-button-wrapper__czWc4 > a",
     house: ".BigCard-module_link__kVqPE",
     results: {
         title: ".AdInfo_ad-info__title__7jXnY",
@@ -41,16 +41,17 @@ export default function HouseConfig() {
     const [homeJson, setHomeJson] = useState([]);
     const [blackList, setBlackList] = useState([]);
     const [backup, setBackup] = useState(false);
+    const [configure, setConfigure] = useState(false);
     const serverRef = useRef(null);
     const immobiliareRef = useRef(null);
     const idealistaRef = useRef(null);
     const subitoRef = useRef(null);
     const blackListRef = useRef(null);
-    
-    function savedState(doUse){
-        if(doUse){
+
+    function savedState(doUse) {
+        if (doUse) {
             setShowHouses(true);
-        }else{
+        } else {
             localStorage.removeItem("savedHouses");
             localStorage.removeItem("deletedHouses");
             localStorage.removeItem("searchedHouses");
@@ -59,36 +60,36 @@ export default function HouseConfig() {
             setBackup(false);
         }
     }
-    useEffect(()=>{
+    useEffect(() => {
         setBackup(localStorage.getItem("savedHouses") || localStorage.getItem("deletedHouses") || localStorage.getItem("searchedHouses") || localStorage.getItem("blockedHouses") || localStorage.getItem("homeJson"));
     }, []);
     // specify upload params and url for your files
-    const getUploadParams = ({ meta }) => { return { }} /* TODO */
+    const getUploadParams = ({ meta }) => { return {} } /* TODO */
 
     // receives array of files that are done uploading when submit button is clicked
-    const handleSubmit = (files) => { /**TODO */}
-    function configureJson(){
+    const handleSubmit = (files) => { /**TODO */ }
+    function configureJson() {
         var auxHomeJson = [];
-        if(blackListRef.current.value){
+        if (blackListRef.current.value) {
             setBlackList(blackListRef.current.value.split("\n"));
         }
-        if(immobiliareRef.current.value !== ""){
+        if (immobiliareRef.current.value !== "") {
             auxHomeJson.push({
                 server: serverRef.current.value,
                 domain: "https://www.immobiliare.it",
                 url: immobiliareRef.current.value,
                 query: immobiliareQuery
-            });   
+            });
         }
-        if(idealistaRef.current.value !== ""){
+        if (idealistaRef.current.value !== "") {
             auxHomeJson.push({
                 server: serverRef.current.value,
                 domain: "https://www.idealista.it",
                 url: idealistaRef.current.value,
                 query: idealistaQuery
-            });   
+            });
         }
-        if(subitoRef.current.value !== ""){
+        if (subitoRef.current.value !== "") {
             auxHomeJson.push({
                 server: serverRef.current.value,
                 domain: "https://www.subito.it",
@@ -96,13 +97,64 @@ export default function HouseConfig() {
                 query: subitoQuery
             })
         }
+        setConfigure(false);
         setHomeJson(auxHomeJson);
         return true;
     }
-    if(!(backup && !showHouses)){
-        if (showHouses) {
+    if (!(backup && !showHouses)) {
+        if (configure) {
             return (
-                <HouseParser urlList={homeJson} blockedList={blackList}/>
+                <div className="container-fluid mt-5">
+                    <div className="row justify-content-center align-items-center">
+                        <div className="col-8">
+                            <div className="container-fluid">
+                                <div className="row">
+                                    <Form>
+                                        <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
+                                            <Form.Label>Link Server locale</Form.Label>
+                                            <Form.Control ref={serverRef} type="server" placeholder="http://localhost:3030/api/" defaultValue="http://localhost:3030/api/" />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
+                                            <Form.Label>Link Immobiliare</Form.Label>
+                                            <Form.Control ref={immobiliareRef} type="immobiliare" placeholder="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3" defaultValue="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3" />
+                                            <Form.Text className="text-muted">
+                                                <a className="fs-6" href="https://www.immobiliare.it/">https://www.immobiliare.it/</a>
+                                            </Form.Text>
+                                        </Form.Group>
+                                        <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
+                                            <Form.Label>Link Idealista</Form.Label>
+                                            <Form.Control ref={idealistaRef} type="idealista" placeholder="https://www.idealista.it/affitto-case/bologna-bologna/" />
+                                            <Form.Text className="text-muted">
+                                                <a className="fs-6" href="https://www.idealista.it/">https://www.idealista.it/</a>
+                                            </Form.Text>
+                                        </Form.Group>
+                                        <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
+                                            <Form.Label>Link Subito</Form.Label>
+                                            <Form.Control ref={subitoRef} type="Subito" placeholder="https://www.subito.it/annunci-emilia-romagna/affitto/appartamenti/bologna/bologna/" defaultValue="https://www.subito.it/annunci-emilia-romagna/affitto/appartamenti/bologna/bologna/" />
+                                            <Form.Text className="text-muted">
+                                                <a className="fs-6" href="https://www.subito.it/">https://www.subito.it/</a>
+                                            </Form.Text>
+                                        </Form.Group>
+                                        <Form.Group>
+                                            <Form.Label className="fs-2">Blacklist</Form.Label>
+                                            <Form.Control ref={blackListRef} as="textarea" rows={8}></Form.Control>
+                                            <Form.Text className="text-muted">Una frase filtrata per riga</Form.Text>
+                                        </Form.Group>
+                                    </Form>
+                                </div>
+                                <div className="row justify-content-center align-items-center">
+                                    <div className="col text-center">
+                                        <Button variant="primary" className="fs-1 p-5 fw-bolder" onClick={configureJson}>Riconfigura la ricerca</Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        } else if (showHouses) {
+            return (
+                <HouseParser urlList={homeJson} blockedList={blackList} reconfigure={setConfigure} />
             );
         } else {
             return (
@@ -117,11 +169,11 @@ export default function HouseConfig() {
                                                 <Form>
                                                     <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
                                                         <Form.Label>Link Server locale</Form.Label>
-                                                        <Form.Control ref={serverRef} type="server" placeholder="http://localhost:3030/api/" defaultValue="http://localhost:3030/api/"/>
+                                                        <Form.Control ref={serverRef} type="server" placeholder="http://localhost:3030/api/" defaultValue="http://localhost:3030/api/" />
                                                     </Form.Group>
                                                     <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
                                                         <Form.Label>Link Immobiliare</Form.Label>
-                                                        <Form.Control ref={immobiliareRef} type="immobiliare" placeholder="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3" defaultValue="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3"/>
+                                                        <Form.Control ref={immobiliareRef} type="immobiliare" placeholder="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3" defaultValue="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3" />
                                                         <Form.Text className="text-muted">
                                                             <a className="fs-6" href="https://www.immobiliare.it/">https://www.immobiliare.it/</a>
                                                         </Form.Text>
@@ -135,7 +187,7 @@ export default function HouseConfig() {
                                                     </Form.Group>
                                                     <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
                                                         <Form.Label>Link Subito</Form.Label>
-                                                        <Form.Control ref={subitoRef} type="Subito" placeholder="https://www.subito.it/annunci-emilia-romagna/affitto/appartamenti/bologna/bologna/"  defaultValue="https://www.subito.it/annunci-emilia-romagna/affitto/appartamenti/bologna/bologna/"/>
+                                                        <Form.Control ref={subitoRef} type="Subito" placeholder="https://www.subito.it/annunci-emilia-romagna/affitto/appartamenti/bologna/bologna/" defaultValue="https://www.subito.it/annunci-emilia-romagna/affitto/appartamenti/bologna/bologna/" />
                                                         <Form.Text className="text-muted">
                                                             <a className="fs-6" href="https://www.subito.it/">https://www.subito.it/</a>
                                                         </Form.Text>
@@ -181,10 +233,10 @@ export default function HouseConfig() {
                                 <div className="container">
                                     <div className="row justify-content-center align-items-center">
                                         <div className="col text-center">
-                                            <Button variant="primary" className="fs-1 p-5 fw-bolder" onClick={()=>{
-                                                if(configureJson()){
+                                            <Button variant="primary" className="fs-1 p-5 fw-bolder" onClick={() => {
+                                                if (configureJson()) {
                                                     setShowHouses(true);
-                                                }else{
+                                                } else {
                                                     /* TODO */
                                                 }
                                                 return;
@@ -195,20 +247,20 @@ export default function HouseConfig() {
                             </div>
                         </div>
                     </div>
-    
-    
-    
+
+
+
                 </>
             );
         }
-    }else{
-        return(
+    } else {
+        return (
             <div className="container-fluid">
                 <div className="row d-flex justify-content-center m-5 text-center">
                     <div className="col-12">
                         <h3 className='m-5'>Ho trovato un salvataggio, vuoi utilizzarlo?</h3>
-                        <Button className="m-3 p-3 bg-success" onClick={()=>{savedState(true)}}>Si</Button>
-                        <Button className="m-3 p-3 bg-danger"  onClick={()=>{savedState(false)}}>No</Button>
+                        <Button className="m-3 p-3 bg-success" onClick={() => { savedState(true) }}>Si</Button>
+                        <Button className="m-3 p-3 bg-danger" onClick={() => { savedState(false) }}>No</Button>
                     </div>
                 </div>
             </div>

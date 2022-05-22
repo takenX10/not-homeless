@@ -9,7 +9,7 @@ import SecondNavbar from './SecondNavbar';
 
 import HouseCard from './HouseCard';
 
-export default function HouseParser({ urlList, blockedList }) {
+export default function HouseParser({ urlList, blockedList, reconfigure }) {
     /* 
         0 = lista case cercate
         1 = lista case bloccate dai filtri
@@ -104,7 +104,7 @@ export default function HouseParser({ urlList, blockedList }) {
 
     return (
         <>
-            <SecondNavbar housesArray={housesArray} setHousesArray={setHousesArray} urlList={config} blockedList={blockedList} startSearch={startSearch}/>
+            <SecondNavbar housesArray={housesArray} setHousesArray={setHousesArray} urlList={config} blockedList={blockedList} startSearch={startSearch} reconfigure={reconfigure}/>
             <div className="container-fluid p-5 mx-5">
                 {
                     ((housesArray[0].length + housesArray[1].length + housesArray[2].length + housesArray[3].length) == 0 ) ?
