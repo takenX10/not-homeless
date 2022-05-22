@@ -18,14 +18,33 @@ export default function HouseParser({ urlList, blockedList }) {
     const [housesArray, setHousesArray] = useState([[],[],[],[]]);
     const [housesLoaded, setHousesLoaded] = useState(false);
     const [config, setConfig] = useState(urlList);
+    function findAndRemove(toremove) {
+        var newList = [];
+        let i = 0;
+        housesArray.forEach((houses) => {
+            newList.push([]);
+            houses.forEach((house)=>{
+                if(house !== toremove) {
+                    newList[i].push(house);
+                }
+            });
+            i++;
+        })
+        return newList;
+    }
 
     function addFunction(house) {
-        setHousesArray((current) => [[...current[0]], [...current[1]], [...current[2]], [...current[3], house]]);
-        // Fix this!!!!!!
+        setHousesArray((current) =>{
+            let newcurrent = findAndRemove(house);
+            return [[...newcurrent[0]], [...newcurrent[1]], [...newcurrent[2]], [...newcurrent[3], house]]
+        });
     }
     
     function deleteFunction(house) {
-        setHousesArray((current) => [[...current[0]], [...current[1]], [...current[2], house], [...current[3]]]);
+        setHousesArray((current) => {
+            let newcurrent = findAndRemove(house);
+            return [[...newcurrent[0]], [...newcurrent[1]], [...newcurrent[2], house], [...newcurrent[3]]]
+        });
     }
 
     function housesArraySize(){

@@ -39,9 +39,7 @@ function isBlocked(house, filters) {
 }
 
 function notPresent(href, housesArray) {
-    console.log(housesArray);
     for (let i = 0; i < housesArray.length; i++) {
-        console.log(housesArray[i].length);
         for (let j = 0; j < housesArray[i].length; j++) {
             if (housesArray[i][j].href === href) {
                 return false
