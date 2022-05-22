@@ -6,6 +6,7 @@ import { startSearch } from './utils';
 import SecondNavbar from './SecondNavbar';
 
 
+
 import HouseCard from './HouseCard';
 
 export default function HouseParser({ urlList, blockedList }) {
@@ -71,6 +72,9 @@ export default function HouseParser({ urlList, blockedList }) {
     }, []);
 
     useEffect(()=>{
+        if(config.length) {
+            window.BASEURL = config[0].server;
+        }
         var housesListLocal = JSON.parse(localStorage.getItem("searchedHouses"));
         var blockedHousesLocal = JSON.parse(localStorage.getItem("blockedHouses"));
         var deletedHousesLocal = JSON.parse(localStorage.getItem("deletedHouses"));

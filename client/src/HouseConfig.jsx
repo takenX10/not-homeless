@@ -41,6 +41,7 @@ export default function HouseConfig() {
     const [homeJson, setHomeJson] = useState([]);
     const [blackList, setBlackList] = useState([]);
     const [backup, setBackup] = useState(false);
+    const serverRef = useRef(null);
     const immobiliareRef = useRef(null);
     const idealistaRef = useRef(null);
     const subitoRef = useRef(null);
@@ -73,6 +74,7 @@ export default function HouseConfig() {
         }
         if(immobiliareRef.current.value !== ""){
             auxHomeJson.push({
+                server: serverRef.current.value,
                 domain: "https://www.immobiliare.it",
                 url: immobiliareRef.current.value,
                 query: immobiliareQuery
@@ -80,6 +82,7 @@ export default function HouseConfig() {
         }
         if(idealistaRef.current.value !== ""){
             auxHomeJson.push({
+                server: serverRef.current.value,
                 domain: "https://www.idealista.it",
                 url: idealistaRef.current.value,
                 query: idealistaQuery
@@ -87,6 +90,7 @@ export default function HouseConfig() {
         }
         if(subitoRef.current.value !== ""){
             auxHomeJson.push({
+                server: serverRef.current.value,
                 domain: "https://www.subito.it",
                 url: subitoRef.current.value,
                 query: subitoQuery
@@ -111,6 +115,10 @@ export default function HouseConfig() {
                                         <div className="container-fluid">
                                             <div className="row">
                                                 <Form>
+                                                    <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
+                                                        <Form.Label>Link Server locale</Form.Label>
+                                                        <Form.Control ref={serverRef} type="server" placeholder="http://localhost:3030/api/" defaultValue="http://localhost:3030/api/"/>
+                                                    </Form.Group>
                                                     <Form.Group className="mb-3 fs-3" controlId="formBasicEmail">
                                                         <Form.Label>Link Immobiliare</Form.Label>
                                                         <Form.Control ref={immobiliareRef} type="immobiliare" placeholder="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3" defaultValue="https://www.immobiliare.it/affitto-case/bologna/?criterio=rilevanza&prezzoMassimo=1300&localiMinimo=3"/>

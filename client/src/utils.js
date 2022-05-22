@@ -1,8 +1,7 @@
 import parse from 'html-react-parser';
-const BASEURL = "http://localhost:3030/api/";
 
 async function postData(url, data) {
-    return fetch(`${BASEURL}${url}`, {
+    return fetch(`${window.BASEURL}${url}`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
